@@ -25,23 +25,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, nextTick, watch } from 'vue';
 
 // Define props with TypeScript
 interface Props {
   length: number;
   mask?: boolean; // Optional mask prop, defaults to true
+  pin: string;    // Custom prop for capturing the PIN value
 }
 
-// Props to configure pin length and masking
+// Props to configure pin length, masking, and two-way binding with "pin"
 const props = defineProps<Props>();
 
-// Set default values (since we cannot use 'default' in TypeScript props)
-const pinLength = Array.from({ length: Math.min(Math.max(props.length ?? 6, 6), 8) }); // Default to length 6 if not provided
-const mask = props.mask !== undefined ? props.mask : true; // Default to true for masking
+// Set default values
+const pinLength = Array.from({ length: Math.min(Math.max(props.length ?? 6, 6), 8) });
+const mask = props.mask !== undefined ? props.mask : true;
 
-// Array to store the pin digits
-const pin = ref(Array(pinLength.length).fill(''));
+// Array to store the pin digits, initialized with the value of the pin prop
+const pin = ref<string[]>(Array.from(props.pin));
+
+// Emit the updated value back to the parent via "update:pin"
+const emit = defineEmits<{
+  (e: 'update:pin', value: string): void;
+}>();
+
+// Watch the pin array and emit the joined value when updated
+watch(pin, (newPin) => {
+  emit('update:pin', newPin.join('')); // Emit the updated pin
+});
 
 // Reference to the hidden input
 const hiddenInput = ref<HTMLInputElement | null>(null);

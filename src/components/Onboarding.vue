@@ -57,9 +57,20 @@
 
           <!-- PinInput Component -->
           <PinInput
-            class="my-4" :length="6" :mask="false"/>
+            class="my-4" v-model:pin="pin" :length="6" :mask="false"/>
 
-          <button @click="completeOnboarding" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Finish</button>
+          <button @click="nextStep" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Finish</button>
+          <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div v-if="currentStep === 4">
+        <div class="h-screen flex flex-col justify-center items-center">
+          <p class="my-2 text-4xl">Getting things ready...</p>
+          <p class="my-2">Your PIN: {{ pin }}</p>
+
+          <button @click="completeOnboarding" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Done</button>
           <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
         </div>
       </div>
@@ -92,17 +103,12 @@ watch(currentStep, async (newStep) => {
   }
 });
 
-// Capture the entered PIN in Step 3
-const pinEntered = (newPin: string) => {
-  pin.value = newPin;
-};
-
 // Emit event to notify parent component
 const emit = defineEmits(['onboarding-complete']);
 
 // Move to the next step
 const nextStep = () => {
-  if (currentStep.value < 3) {
+  if (currentStep.value < 4) {
     currentStep.value++;
   }
 };
