@@ -67,7 +67,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang=ts>
 import { ref, watch, nextTick } from 'vue';
 import PinInput from './PinInput.vue'; // Import the PinInput component
 
@@ -82,7 +82,7 @@ const dwnEndpoint = ref('https://dwn.tbddev.org/beta');
 const pin = ref('');
 
 // Reference to the profile name input element
-const profileNameInput = ref(null);
+const profileNameInput = ref<HTMLInputElement>();
 
 // Watch the currentStep value and focus on the profile input when step 2 is shown
 watch(currentStep, async (newStep) => {
@@ -93,7 +93,7 @@ watch(currentStep, async (newStep) => {
 });
 
 // Capture the entered PIN in Step 3
-const pinEntered = (newPin) => {
+const pinEntered = (newPin: string) => {
   pin.value = newPin;
 };
 
