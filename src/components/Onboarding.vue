@@ -25,7 +25,6 @@
             <label for="profile-name" class="block mb-2 font-semibold">Name your profile:</label>
             <input
               id="profile-name"
-              ref="profileNameInput"
               type="text"
               class="w-full p-2 border border-gray-300 rounded"
               v-model="profileName"
@@ -91,17 +90,6 @@ const dwnEndpoint = ref('https://dwn.tbddev.org/beta');
 
 // Pin value for Step 3
 const pin = ref('');
-
-// Reference to the profile name input element
-const profileNameInput = ref<HTMLInputElement>();
-
-// Watch the currentStep value and focus on the profile input when step 2 is shown
-watch(currentStep, async (newStep) => {
-  if (newStep === 2) {
-    await nextTick(); // Needed this line to ensure DOM is fully updated before attempting to focus on profile name input
-    profileNameInput.value?.focus();
-  }
-});
 
 // Emit event to notify parent component
 const emit = defineEmits(['onboarding-complete']);
