@@ -58,7 +58,14 @@
           <PinInput
             class="my-4" v-model:pin="pin" :length="6" :mask="false"/>
 
-          <button @click="nextStep" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Finish</button>
+          <!-- Next button is disabled until pin is obtained -->
+          <button
+            class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300 disabled:opacity-50"
+            :disabled="pin.length < 6"
+            @click="nextStep"
+          >
+            Finish
+          </button>
           <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
         </div>
       </div>
@@ -77,8 +84,8 @@
   </div>
 </template>
 
-<script setup lang=ts>
-import { ref, watch, nextTick } from 'vue';
+<script setup lang="ts">
+import { ref } from 'vue';
 import PinInput from './PinInput.vue'; // Import the PinInput component
 
 // Track the current step in the onboarding flow
@@ -113,4 +120,3 @@ const completeOnboarding = () => {
   emit('onboarding-complete');
 };
 </script>
-

@@ -15,7 +15,7 @@
       inputmode="numeric"
       maxlength="8"
       pattern="[0-9]*"
-      class="sr-only"
+      class="invisible-input"
       ref="hiddenInput"
       @input="handleInput"
       @focus="focusHiddenInput"
@@ -84,8 +84,17 @@ focusHiddenInput();
 </script>
 
 <style scoped>
-.sr-only {
-  @apply absolute w-px h-px p-0 m-0 overflow-hidden whitespace-nowrap border-0;
+.invisible-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
   clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  pointer-events: none; /* Prevent any interaction with the hidden input */
+  opacity: 0; /* Ensure complete invisibility */
 }
 </style>
