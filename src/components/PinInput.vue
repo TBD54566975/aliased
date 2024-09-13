@@ -1,89 +1,80 @@
 <template>
   <div class="flex space-x-2 justify-center">
-    <!-- Use "text" with inputmode="numeric" for iPhone -->
-    <!-- Triggers the numeric keypad on iPhone -->
-    <input
+    <!-- Display each entered digit in a styled box -->
+    <div
       v-for="(digit, index) in pinLength"
       :key="index"
+      class="w-12 h-12 text-center text-2xl border border-gray-300 rounded flex items-center justify-center"
+    >
+      <!-- Display the actual digit or asterisk (*) based on the mask prop, or nothing if no digit is entered -->
+      {{ mask ? (pin[index] ? '*' : '') : (pin[index] || '') }}
+    </div>
+    <!-- Hidden input to capture the entire pin -->
+    <input
       type="text"
-      maxlength="1"
       inputmode="numeric"
+      maxlength="8"
       pattern="[0-9]*"
-      class="w-12 h-12 text-center text-2xl border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      v-model="pin[index]"
-      @input="handleInput($event, index)"
-      @keydown.backspace="focusPrevious(index)"
+      class="sr-only"
+      ref="hiddenInput"
+      @input="handleInput"
+      @focus="focusHiddenInput"
+      @keydown.backspace="handleBackspace"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick } from 'vue';
 
 // Define props with TypeScript
 interface Props {
   length: number;
+  mask?: boolean; // Optional mask prop, defaults to true
 }
 
-// Props to configure pin length
+// Props to configure pin length and masking
 const props = defineProps<Props>();
 
-// Ensure the length is between 6 and 8
-const pinLength = Array.from({ length: Math.min(Math.max(props.length, 6), 8) });
+// Set default values (since we cannot use 'default' in TypeScript props)
+const pinLength = Array.from({ length: Math.min(Math.max(props.length ?? 6, 6), 8) }); // Default to length 6 if not provided
+const mask = props.mask !== undefined ? props.mask : true; // Default to true for masking
 
-// Array to store pin digits
-const pin = ref(Array(props.length).fill(''));
+// Array to store the pin digits
+const pin = ref(Array(pinLength.length).fill(''));
 
-// Emit the full PIN as a string to the parent
-const emit = defineEmits<{
-  (e: 'update:pin', pin: string): void;
-}>();
+// Reference to the hidden input
+const hiddenInput = ref<HTMLInputElement | null>(null);
 
-watch(pin, (newPin) => {
-  emit('update:pin', newPin.join(''));
-});
+// Focus the hidden input box for capturing numeric input
+const focusHiddenInput = () => {
+  nextTick(() => {
+    hiddenInput.value?.focus();
+  });
+};
 
-// Handle input and ensure it's a number
-const handleInput = (event: Event, index: number) => {
+// Handle the input and update the pin array
+const handleInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  const value = target.value.replace(/\D/g, ''); // Remove non-digit characters
-  pin.value[index] = value ? value[0] : ''; // Keep only the first digit
+  const value = target.value.replace(/\D/g, ''); // Only keep digits
+  pin.value = value.split('').slice(0, props.length); // Update the pin array with the digits entered
+  target.value = pin.value.join(''); // Sync the input value with the pin digits
+};
 
-  if (pin.value[index] !== '') {
-    focusNext(index); // Focus the next input if a valid number is entered
+// Handle backspace to remove digits from the pin array
+const handleBackspace = (event: KeyboardEvent) => {
+  if (event.key === 'Backspace') {
+    pin.value.pop();
   }
 };
 
-// Focus the next input after entering a digit
-const focusNext = (index: number) => {
-  if (index < props.length - 1 && pin.value[index] !== '') {
-    nextTick(() => {
-      const inputs = document.querySelectorAll<HTMLInputElement>('input');
-      inputs[index + 1]?.focus();
-    });
-  }
-};
-
-// Focus previous input on backspace
-const focusPrevious = (index: number) => {
-  if (index > 0 && pin.value[index] === '') {
-    nextTick(() => {
-      const inputs = document.querySelectorAll<HTMLInputElement>('input');
-      inputs[index - 1]?.focus();
-    });
-  }
-};
+// Ensure the hidden input is always focused to capture numeric input
+focusHiddenInput();
 </script>
 
 <style scoped>
-/* Add basic Tailwind styles */
-input {
-  width: 3rem;
-  height: 3rem;
-  font-size: 1.5rem;
-  text-align: center;
-  border-radius: 0.375rem;
-  border: 1px solid #d1d5db;
-  box-sizing: border-box;
+.sr-only {
+  @apply absolute w-px h-px p-0 m-0 overflow-hidden whitespace-nowrap border-0;
+  clip: rect(0, 0, 0, 0);
 }
 </style>

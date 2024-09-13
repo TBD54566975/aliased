@@ -57,7 +57,7 @@
 
           <!-- PinInput Component -->
           <PinInput
-            class="my-4" :length="6" @update:pin="pinEntered" />
+            class="my-4" :length="6" :mask="false"/>
 
           <button @click="completeOnboarding" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Finish</button>
           <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
@@ -116,7 +116,6 @@ const previousStep = () => {
 
 // Complete the onboarding process
 const completeOnboarding = () => {
-  console.log('Entered PIN:', pin.value); // Handle the entered PIN
   emit('onboarding-complete');
 };
 </script>
