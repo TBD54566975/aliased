@@ -46,7 +46,15 @@
             />
           </div>
 
-          <button @click="nextStep" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Next</button>
+          <!-- Disable the button unless both inputs are filled -->
+          <button
+            @click="nextStep"
+            :disabled="!canProceedToPinCreation"
+            class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300 disabled:opacity-50"
+          >
+            Next
+          </button>
+
           <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
         </div>
       </div>
@@ -59,7 +67,8 @@
 
           <!-- PinInput Component -->
           <PinInput
-            class="my-4" v-model:pin="pin" :length="6" :mask="false"/>
+            class="my-4" v-model:pin="pin" :length="6" :mask="false"
+          />
 
           <!-- Next button is disabled until pin is obtained -->
           <button
@@ -69,6 +78,7 @@
           >
             Finish
           </button>
+
           <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
         </div>
       </div>
@@ -90,7 +100,7 @@
 
 <script setup lang="ts">
 import { ProfileManager } from '../ProfileManager';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import PinInput from './PinInput.vue';
 
 // Used for displaying debug info
@@ -102,6 +112,8 @@ const currentStep = ref(1);
 // Step 2 inputs
 const profileName = ref('');
 const dwnEndpoint = ref('https://dwn.tbddev.org/beta');
+// Computed property to check if both profileName and dwnEndpoint are filled
+const canProceedToPinCreation = computed(() => profileName.value.trim() !== '' && dwnEndpoint.value.trim() !== '');
 
 // Step 3 inputs
 const pin = ref('');

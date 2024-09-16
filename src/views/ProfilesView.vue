@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-screen">
-    <!-- Top Header -->
-    <div class="bg-[#fcec03] p-4 flex items-center justify-between">
+    <!-- Top Header with space for the mobile status bar (time, battery, etc.) -->
+    <div class="bg-[#fcec03] p-4 flex items-center justify-between pt-24">
       <p class="text-4xl font-bold">Profiles</p>
     </div>
 
