@@ -2,7 +2,7 @@
   <div class="flex flex-col h-screen">
     <!-- Top Header with space for the mobile status bar (time, battery, etc.) -->
     <div class="bg-[#fcec03] p-4 flex items-center justify-between pt-24">
-      <p class="text-4xl font-bold">Profiles</p>
+      <p class="text-4xl">Profiles</p>
     </div>
 
     <!-- Profile List -->
@@ -36,27 +36,11 @@
       </button>
     </div>
 
-    <!-- Bottom Navigation Tabs -->
-    <div class="flex justify-around bg-gray-100 p-2">
-      <!-- Profiles Tab -->
-      <div class="flex flex-col items-center">
-        <ion-icon :icon="idCardOutline" size="large"></ion-icon>
-        <p class="text-black text-sm">Profiles</p>
-      </div>
-
-      <!-- Apps Tab -->
-      <div class="flex flex-col items-center">
-        <ion-icon :icon="cubeOutline" size="large"></ion-icon>
-        <p class="text-gray-400 text-sm">Apps</p>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { IonIcon } from '@ionic/vue';
-import { cubeOutline, idCardOutline } from 'ionicons/icons';
 import { ProfileManager, type Profile } from '@/ProfileManager';
 
 // Reactive variable to store profiles
