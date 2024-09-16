@@ -76,13 +76,12 @@
       <!-- Step 4 -->
       <div v-if="currentStep === 4">
         <div class="h-screen flex flex-col justify-center items-center">
-          <p class="my-2 text-4xl">Creating your profile...</p>
-          <p class="my-2">Your PIN: {{ pin }}</p>
+          <p class="my-2 text-4xl">{{ step4Heading }}</p>
+          <p class="my-2">{{ debugInfo }}</p>
 
-          <img src="@/assets/spinner.gif" alt="Loading..." class="h-8 w-8" />
+          <img v-if="!profileCreated" src="@/assets/spinner.gif" alt="Loading..." class="h-8 w-8" />
 
-          <button @click="completeOnboarding" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Done</button>
-          <button @click="previousStep" class="my-2 w-full bg-gray-500 text-white p-2 rounded-full active:bg-gray-600">Previous</button>
+          <button v-if="profileCreated" @click="completeOnboarding" class="my-2 w-full bg-[#fcec03] text-black p-2 rounded-full active:bg-yellow-300">Done</button>
         </div>
       </div>
     </div>
@@ -90,18 +89,26 @@
 </template>
 
 <script setup lang="ts">
+import { ProfileManager } from '../ProfileManager';
 import { ref } from 'vue';
-import PinInput from './PinInput.vue'; // Import the PinInput component
+import PinInput from './PinInput.vue';
+
+// Used for displaying debug info
+const debugInfo = ref('');
 
 // Track the current step in the onboarding flow
 const currentStep = ref(1);
 
-// Inputs for Step 2
+// Step 2 inputs
 const profileName = ref('');
 const dwnEndpoint = ref('https://dwn.tbddev.org/beta');
 
-// Pin value for Step 3
+// Step 3 inputs
 const pin = ref('');
+
+// Step 4 inputs
+const step4Heading = ref('Creating your profile...');
+const profileCreated = ref(false);
 
 // Emit event to notify parent component
 const emit = defineEmits(['onboarding-complete']);
@@ -112,12 +119,9 @@ const nextStep = () => {
     currentStep.value++;
   }
 
-  // If the user is on the last step, create the profile using the info gathered in previous steps
+  // If the user is on the last step, create the profile (DID) using the info gathered in previous steps
   if (currentStep.value === 4) {
-    console.log('Creating profile...');
-    console.log('Profile Name:', profileName.value);
-    console.log('DWN Endpoint:', dwnEndpoint.value);
-    
+    createProfile();
   }
 };
 
@@ -126,6 +130,20 @@ const previousStep = () => {
   if (currentStep.value > 1) {
     currentStep.value--;
   }
+};
+
+const createProfile = async () => {
+  try {
+    await ProfileManager.singleton().createProfile({
+      profileName: profileName.value,
+      dwnEndpoint: dwnEndpoint.value
+    });
+  } catch (error) {
+    debugInfo.value = 'Error creating profile:';
+  }
+
+  step4Heading.value = 'Your first Aliased profile created!';
+  profileCreated.value = true;
 };
 
 // Complete the onboarding process

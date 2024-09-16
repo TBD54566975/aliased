@@ -12,6 +12,7 @@ const isOnboarded = ref(false);
 
 onMounted(() => {
   // check what page to show initially based on onboarding status
+  // TODO: instead of using `isFirstLaunch`, just check if there is already an existing profile
   const onboardingComplete = localStorage.getItem('isFirstLaunch') === 'false';
   isOnboarded.value = onboardingComplete;
 });
