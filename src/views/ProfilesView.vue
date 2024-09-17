@@ -42,6 +42,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { ProfileManager, type Profile } from '@/ProfileManager';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // Reactive variable to store profiles
 const profiles = ref<Profile[]>([]);
@@ -54,7 +57,10 @@ const fetchProfiles = () => {
 
 // Create a new profile (you can modify this to show a form)
 const createProfile = async () => {
-
+  // temporary trigger web5 connect request handler
+  router.push({
+    path: '/web5-connect-request'
+  });
 };
 
 // Fetch profiles on component mount
