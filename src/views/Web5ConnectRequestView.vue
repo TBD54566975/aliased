@@ -62,8 +62,11 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { ProfileManager, type Profile } from '../ProfileManager';
+import { Oidc } from "@web5/agent";
+
+const route = useRoute();
 
 // Reactive data
 const profiles = ref<Profile[]>([]);
@@ -94,9 +97,16 @@ const decryptedConnectionRequest = ref({
 const router = useRouter();
 
 // Fetch profiles from the ProfileManager when the component is mounted
-onMounted(() => {
+onMounted(async () => {
+  const requestUri = route.query.request_uri as string;
+  const encryptionKey = route.query.encryption_key as string;
+  console.log('request_uri:', requestUri);
+  console.log('encryption_key:', encryptionKey);
+
   const profileManager = ProfileManager.singleton();
   profiles.value = profileManager.getProfiles();
+
+  decryptedConnectionRequest.value = await Oidc.getAuthRequest(requestUri, encryptionKey);
 });
 
 // Function to select a profile

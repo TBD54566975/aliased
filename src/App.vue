@@ -38,6 +38,7 @@ const configureDeepLinkHook = () => {
     if (url.startsWith('web5://connect')) {
       const urlParams = new URLSearchParams(url.split('?')[1]);
       const requestUri = urlParams.get('request_uri');
+      const encryptionKey = urlParams.get('encryption_key');
 
       if (requestUri) {
         console.log('Deep link request URI:', requestUri);
@@ -45,7 +46,7 @@ const configureDeepLinkHook = () => {
         // Trigger the web5 connect request handling page
         router.push({
           name: 'web5-connect-request', // The route for handling the connection
-          query: { request_uri: requestUri }
+          query: { request_uri: requestUri, encryption_key: encryptionKey }
         });
       }
     }
