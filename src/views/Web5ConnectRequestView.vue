@@ -37,10 +37,12 @@
       <p class="text-2xl">Permissions requested</p>
       <p class="text-sm text-gray-500 mt-3">Make sure you trust {{ serviceName }}. {{ serviceName }} will be able to:</p>
 
-      <!-- List of permissions (for now, just placeholders) -->
+      <!-- Dynamically Render Permissions -->
       <ul class="list-disc pl-6">
-        <li>Access your basic profile information</li>
-        <li>Connect to the {{ serviceName }} service</li>
+        <li v-for="(request, index) in decryptedConnectionRequest.permissionRequests" :key="index">
+          <p class="font-semibold">{{ request.protocolDefinition.protocol }}</p>
+          <p>{{ request.permissionScopes.map(scope => `${scope.method} ${scope.interface}`).join(', ') }}</p>
+        </li>
       </ul>
     </div>
 
@@ -67,6 +69,26 @@ import { ProfileManager, type Profile } from '../ProfileManager';
 const profiles = ref<Profile[]>([]);
 const selectedProfile = ref<string | null>(null);
 const serviceName = ref('Fllw'); // This could be dynamic based on the deep link
+
+// Example decryptedConnectionRequest, this will be passed to the component dynamically
+const decryptedConnectionRequest = ref({
+  permissionRequests: [
+    {
+      protocolDefinition: { protocol: 'Protocol A' },
+      permissionScopes: [
+        { method: 'read', interface: 'Profile' },
+        { method: 'write', interface: 'Settings' },
+      ],
+    },
+    {
+      protocolDefinition: { protocol: 'Protocol B' },
+      permissionScopes: [
+        { method: 'read', interface: 'Contacts' },
+        { method: 'write', interface: 'Messages' },
+      ],
+    },
+  ],
+});
 
 // Vue Router for navigation
 const router = useRouter();
