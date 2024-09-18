@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
 import { cubeOutline, idCardOutline } from 'ionicons/icons';
-import { ProfileManager } from './ProfileManager';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted, nextTick, computed } from 'vue';
 import { App } from '@capacitor/app';
+import { IdentityAgentManager } from './IdentityAgentManager';
 import Onboarding from './components/Onboarding.vue';
 import Relaunching from './components/Relaunching.vue';
 
@@ -23,8 +23,15 @@ const hasExistingProfile = ref(false);
 // Determine if the current route is a modal route (e.g. /web5-connect-request)
 const isModalRoute = computed(() => route.name === 'web5-connect-request');
 
-onMounted(() => {
-  hasExistingProfile.value = ProfileManager.singleton().getProfiles().length > 0;
+onMounted(async () => {
+  console.log('Window object:', Object.keys(window));
+  console.log('Global object:', typeof globalThis !== 'undefined' ? Object.keys(globalThis) : 'Not available');
+  console.log('Process object:', typeof process !== 'undefined' ? Object.keys(process) : 'Not available');
+  console.log('Process.env:', typeof process !== 'undefined' && process.env ? Object.keys(process.env) : 'Not available');
+  console.log('import.meta:', typeof import.meta !== 'undefined' ? Object.keys(import.meta) : 'Not available');
+  console.log('import.meta.env:', typeof import.meta !== 'undefined' && import.meta.env ? Object.keys(import.meta.env) : 'Not available');
+
+  hasExistingProfile.value = !await (await IdentityAgentManager.singleton()).isFirstLaunch();
 
   configureDeepLinkHook();
 });
@@ -61,8 +68,8 @@ const showProfilesPage = async () => {
 
 <template>
   <!-- Handle the onboarding or relaunching flows -->
-  <Onboarding v-if="!hasExistingProfile" @onboarding-complete="showProfilesPage" />
-  <Relaunching v-if="!initializationCompleted" @initialization-complete="showProfilesPage" />
+  <Onboarding v-if="!initializationCompleted && !hasExistingProfile" @onboarding-complete="showProfilesPage" />
+  <Relaunching v-else-if="!initializationCompleted" @initialization-complete="showProfilesPage" />
 
   <!-- Show main content after initialization is complete -->
   <div v-if="initializationCompleted" class="flex flex-col h-screen">

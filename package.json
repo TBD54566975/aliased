@@ -17,13 +17,21 @@
     "@capacitor/core": "^6.1.2",
     "@capacitor/ios": "^6.1.2",
     "@ionic/vue": "^8.3.0",
-    "@web5/agent": "^0.7.3",
-    "@web5/dids": "^1.1.4",
+    "@tbd54566975/dwn-sdk-js": "^0.4.7",
+    "@web5/agent": "../web5-js/packages/agent",
+    "@web5/api": "../web5-js/packages/api",
+    "@web5/common": "../web5-js/packages/common",
+    "@web5/crypto": "../web5-js/packages/crypto",
+    "@web5/dids": "../web5-js/packages/dids",
+    "@web5/identity-agent": "../web5-js/packages/identity-agent",
     "ionicons": "^7.4.0",
+    "vite-plugin-node-stdlib-browser": "^0.2.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
     "@rushstack/eslint-patch": "^1.8.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/node": "^20.14.5",
@@ -35,9 +43,11 @@
     "eslint-plugin-vue": "^9.23.0",
     "npm-run-all2": "^6.2.0",
     "postcss": "^8.4.45",
+    "rollup-plugin-polyfill-node": "^0.13.0",
     "tailwindcss": "^3.4.11",
     "typescript": "~5.4.0",
-    "vite": "^5.3.1",
+    "vite": "^5.4.6",
+    "vite-plugin-node-polyfills": "^0.22.0",
     "vue-tsc": "^2.0.21"
   }
 }

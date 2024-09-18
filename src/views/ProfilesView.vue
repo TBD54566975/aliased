@@ -50,9 +50,12 @@ const router = useRouter();
 const profiles = ref<Profile[]>([]);
 
 // Fetch profiles when component is mounted
-const fetchProfiles = () => {
+const fetchProfiles = async () => {
   const profileManager = ProfileManager.singleton();
-  profiles.value = profileManager.getProfiles();
+  const profileArray = await profileManager.getProfiles();
+  console.log('Fetched profile count:', profileArray.length);
+
+  profiles.value = profileArray;
 };
 
 // Create a new profile (you can modify this to show a form)

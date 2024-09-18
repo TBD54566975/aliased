@@ -1,5 +1,7 @@
 import type { PortableDid } from "@web5/dids";
 import { DidDht } from "@web5/dids";
+import { IdentityAgentManager } from "./IdentityAgentManager";
+import { profileProtocol } from "./profile-protocol";
 
 
 /**
@@ -12,7 +14,7 @@ export type Profile = {
   profileName: string;
   did: string;
   dwnEndpoint: string;
-  privateKeyJwk: ExtractArrayType<PortableDid['privateKeys']>;
+  privateKeyJwk?: ExtractArrayType<PortableDid['privateKeys']>;
 };
 
 /**
@@ -22,10 +24,10 @@ export class ProfileManager {
   private static singletonInstance: ProfileManager;
 
   public static singleton(): ProfileManager {
-      if (ProfileManager.singletonInstance === undefined) {
+    if (ProfileManager.singletonInstance === undefined) {
       ProfileManager.singletonInstance = new ProfileManager();
-      }
-      return ProfileManager.singletonInstance;
+    }
+    return ProfileManager.singletonInstance;
   }
 
   /**
@@ -34,60 +36,123 @@ export class ProfileManager {
   public async createProfile(options: {
     profileName: string;
     dwnEndpoint: string;
-  }): Promise<Profile> {
+  }): Promise<void> {
     const { profileName, dwnEndpoint } = options;
 
-    console.log('Creating profile...');
-    const didDht = await DidDht.create();
-    const privateKeyJwk = (await didDht.export()).privateKeys![0];
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    await identityAgentManager.createIdentity(profileName, dwnEndpoint);
 
-    console.log('Profile Name:', profileName);
-    console.log('DID:', didDht.uri);
-    console.log('DWN Endpoint:', dwnEndpoint);
+    // console.log('Creating profile...');
+    // const didDht = await DidDht.create();
+    // const privateKeyJwk = (await didDht.export()).privateKeys![0];
 
-    const profile = {
-      profileName,
-      did: didDht.uri,
-      dwnEndpoint,
-      privateKeyJwk
-    };
+    // console.log('Profile Name:', profileName);
+    // console.log('DID:', didDht.uri);
+    // console.log('DWN Endpoint:', dwnEndpoint);
 
-    // Save profile to local storage
-    this.upsertProfile(profile);
-    return profile;
+    // const profile = {
+    //   profileName,
+    //   did: didDht.uri,
+    //   dwnEndpoint,
+    //   privateKeyJwk
+    // };
+
+    // // Save profile to local storage
+    // this.upsertProfile(profile);
+    // return profile;
   }
 
   /**
    * Gets the list of managed profiles.
    */
-  public getProfiles(): Profile[] {
-    // Get the profiles from local storage
-    const profiles = localStorage.getItem('profiles');
-
-    // Return an empty array if there are no profiles
-    if (!profiles) {
+  public async getProfiles(): Promise<Profile[]> {
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    if (await identityAgentManager.isFirstLaunch()) {
       return [];
     }
 
-    return JSON.parse(profiles);
+    console.log('Getting identity list...');
+    const identities = await identityAgentManager.agent.identity.list();
+    console.log('Fetched identity count:', identities.length);
+
+    const profiles = [];
+    for (const identity of identities) {
+      const web5 = identityAgentManager.web5(identity.did.uri);
+
+      console.log('Fetching profile for:', identity.did.uri);
+      const profileQueryResult = await web5.dwn.records.query({
+        message: {
+          filter: {
+            protocol: profileProtocol.protocol,
+            protocolPath: 'profile',
+          },
+        },
+      });
+      console.log('Profile record fetched for:', identity.did.uri);
+
+      const profileRecordId = profileQueryResult.records?.at(0)?.id;
+
+      const profileReadResult = await web5.dwn.records.read({
+        message: {
+          filter: {
+            recordId: profileRecordId
+          },
+        },
+      });
+
+      const partialProfile: {
+        name: string;
+        did: string;
+      } = await profileReadResult.record.data.json();
+
+      // get the DWN endpoint from the DID document
+      const serviceEndpoint = identity.did.document.service?.find((service) => service.id === 'dwn')?.serviceEndpoint ?? '';
+      // selecting the first available endpoint
+      let dwnEndpoint;
+      if (typeof(serviceEndpoint) === 'string') {
+        dwnEndpoint = serviceEndpoint;
+      } else {
+        throw new Error('Unsupported DWN service endpoint format');
+      }
+
+      const profile = {
+        profileName: partialProfile.name,
+        did: partialProfile.did,
+        dwnEndpoint
+      };
+
+      profiles.push(profile);
+    }
+
+    return profiles;
+
+    // // Get the profiles from local storage
+    // const profiles = localStorage.getItem('profiles');
+
+    // // Return an empty array if there are no profiles
+    // if (!profiles) {
+    //   return [];
+    // }
+
+    // return JSON.parse(profiles);
   }
 
   /**
    * Inserts a new profile if it does not exists based on the profile name, otherwise updates the existing profile.
    */
-  public upsertProfile(profile: Profile): void {
-    const profiles = this.getProfiles();
+  // public upsertProfile(profile: Profile): void {
+  //   const profiles = this.getProfiles();
 
-    // Check if the profile already exists (find its index in the profile array)
-    const profileIndex = profiles.findIndex((p) => p.profileName === profile.profileName);
+  //   // Check if the profile already exists (find its index in the profile array)
+  //   const profileIndex = profiles.findIndex((p) => p.profileName === profile.profileName);
 
-    if (profileIndex === -1) {
-      profiles.push(profile);
-    } else {
-      profiles[profileIndex] = profile;
-    }
+  //   if (profileIndex === -1) {
+  //     profiles.push(profile);
+  //   } else {
+  //     profiles[profileIndex] = profile;
+  //   }
 
-    localStorage.setItem('profiles', JSON.stringify(profiles));
-    console.log('Profile upserted:', profile.profileName);
-  }
+  //   localStorage.setItem('profiles', JSON.stringify(profiles));
+  //   console.log('Profile upserted:', profile.profileName);
+  // }
 }

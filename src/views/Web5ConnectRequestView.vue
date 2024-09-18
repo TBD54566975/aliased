@@ -39,20 +39,25 @@
 
       <!-- Dynamically Render Permissions -->
       <ul class="list-disc pl-6">
-        <li v-for="(request, index) in decryptedConnectionRequest.permissionRequests" :key="index">
+        <li v-for="(request, index) in decryptedConnectionRequest?.permissionRequests" :key="index">
           <p class="font-semibold">{{ request.protocolDefinition.protocol }}</p>
           <p>{{ request.permissionScopes.map(scope => `${scope.method} ${scope.interface}`).join(', ') }}</p>
         </li>
       </ul>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex justify-between mt-8">
-      <button @click="cancel" class="bg-gray-200 text-black py-3 px-6 rounded-full">Cancel</button>
+    <!-- Action Buttons (each button takes half the width) -->
+    <div class="flex mt-8 space-x-4">
+      <button 
+        @click="cancel" 
+        class="bg-gray-200 text-black py-3 px-6 rounded-full w-1/2"
+      >
+        Cancel
+      </button>
       <button 
         @click="confirmConnection"
         :disabled="!selectedProfile"
-        class="bg-[#fcec03] text-black py-3 px-6 rounded-full disabled:opacity-50"
+        class="bg-[#fcec03] text-black py-3 px-6 rounded-full w-1/2 disabled:opacity-50"
       >
         Next
       </button>
@@ -61,10 +66,14 @@
 </template>
 
 <script setup lang="ts">
+import type { Web5ConnectAuthRequest } from "@web5/agent";
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ProfileManager, type Profile } from '../ProfileManager';
 import { Oidc } from "@web5/agent";
+import { CryptoUtils } from "@web5/crypto";
+import { IdentityAgentManager } from "../IdentityAgentManager";
+
 
 const route = useRoute();
 
@@ -74,24 +83,7 @@ const selectedProfile = ref<string | null>(null);
 const serviceName = ref('Fllw'); // This could be dynamic based on the deep link
 
 // Example decryptedConnectionRequest, this will be passed to the component dynamically
-const decryptedConnectionRequest = ref({
-  permissionRequests: [
-    {
-      protocolDefinition: { protocol: 'Protocol A' },
-      permissionScopes: [
-        { method: 'read', interface: 'Profile' },
-        { method: 'write', interface: 'Settings' },
-      ],
-    },
-    {
-      protocolDefinition: { protocol: 'Protocol B' },
-      permissionScopes: [
-        { method: 'read', interface: 'Contacts' },
-        { method: 'write', interface: 'Messages' },
-      ],
-    },
-  ],
-});
+const decryptedConnectionRequest = ref<Web5ConnectAuthRequest>();
 
 // Vue Router for navigation
 const router = useRouter();
@@ -104,7 +96,7 @@ onMounted(async () => {
   console.log('encryption_key:', encryptionKey);
 
   const profileManager = ProfileManager.singleton();
-  profiles.value = profileManager.getProfiles();
+  profiles.value = await profileManager.getProfiles();
 
   decryptedConnectionRequest.value = await Oidc.getAuthRequest(requestUri, encryptionKey);
 });
@@ -120,14 +112,22 @@ const cancel = () => {
   router.go(-1); // Go back to the previous route
 };
 
-// Function to confirm connection
-const confirmConnection = () => {
-  if (selectedProfile.value) {
-    console.log('Profile connected:', selectedProfile.value);
-    // Trigger the actual connection logic here (e.g., connect the profile to the service)
-    router.push('/'); // Redirect to the profiles page or any other page
-  }
-};
+
+const confirmConnection = async () => {
+    const selectedDid = profiles.value.find((profile) => profile.profileName === selectedProfile.value)!.did;
+  
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    const identityAgent = identityAgentManager.agent;
+
+    const pin = CryptoUtils.randomPin({ length: 4 });
+    await Oidc.submitAuthResponse(
+      selectedDid,
+      decryptedConnectionRequest.value!,
+      pin,
+      identityAgent
+    );
+  };
+
 </script>
 
 <style scoped>

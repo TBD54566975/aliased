@@ -101,6 +101,7 @@
 <script setup lang="ts">
 import { ProfileManager } from '../ProfileManager';
 import { ref, computed } from 'vue';
+import { IdentityAgentManager } from '@/IdentityAgentManager';
 import PinInput from './PinInput.vue';
 
 // Used for displaying debug info
@@ -133,7 +134,7 @@ const nextStep = () => {
 
   // If the user is on the last step, create the profile (DID) using the info gathered in previous steps
   if (currentStep.value === 4) {
-    createProfile();
+    bootstrap();
   }
 };
 
@@ -144,14 +145,23 @@ const previousStep = () => {
   }
 };
 
-const createProfile = async () => {
+// bootstraps a new identity agent then creates the first profile
+const bootstrap = async () => {
   try {
+    // console.log(process);
+
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    await identityAgentManager.bootstrap(pin.value);
+
+    console.log(`Creating profile: ${profileName.value}...`);
     await ProfileManager.singleton().createProfile({
       profileName: profileName.value,
       dwnEndpoint: dwnEndpoint.value
     });
   } catch (error) {
-    debugInfo.value = 'Error creating profile:';
+    const errorMessage = 'Error creating profile: ' + error;
+    console.log(errorMessage);
+    debugInfo.value = errorMessage;
   }
 
   step4Heading.value = 'Your first Aliased profile created!';

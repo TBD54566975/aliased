@@ -5,7 +5,8 @@
     "vitest.config.*",
     "cypress.config.*",
     "nightwatch.conf.*",
-    "playwright.config.*"
+    "playwright.config.*",
+    "src/**/*.d.ts", // for declarations.d.ts added to workaround lack of type in `vite-plugin-node-stdlib-browser` lib
   ],
   "compilerOptions": {
     "composite": true,

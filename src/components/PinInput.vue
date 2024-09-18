@@ -9,6 +9,7 @@
       <!-- Display the actual digit or asterisk (*) based on the mask prop, or nothing if no digit is entered -->
       {{ mask ? (pin[index] ? '*' : '') : (pin[index] || '') }}
     </div>
+
     <!-- Hidden input to capture the entire pin -->
     <input
       type="text"
@@ -25,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch } from 'vue';
+import { ref, nextTick, watch, defineExpose } from 'vue';
 
 // Define props with TypeScript
 interface Props {
@@ -51,7 +52,8 @@ const emit = defineEmits<{
 
 // Watch the pin array and emit the joined value when updated
 watch(pin, (newPin) => {
-  emit('update:pin', newPin.join('')); // Emit the updated pin
+  const newPingString = newPin.join('');
+  emit('update:pin', newPingString); // Emit the updated pin
 });
 
 // Reference to the hidden input
@@ -78,6 +80,18 @@ const handleBackspace = (event: KeyboardEvent) => {
     pin.value.pop();
   }
 };
+
+// Reset the pin array
+const resetPin = () => {
+  hiddenInput.value!.value = '';
+  pin.value = Array(props.length).fill(''); // Clear all entered digits
+  focusHiddenInput(); // Refocus the hidden input for new entry
+};
+
+// Expose the resetPin method to the parent component
+defineExpose({
+  resetPin
+});
 
 // Ensure the hidden input is always focused to capture numeric input
 focusHiddenInput();
