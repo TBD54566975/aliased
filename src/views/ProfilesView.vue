@@ -16,9 +16,8 @@
           </div>
         </div>
         <div class="flex-grow ml-4">
-          <p class="text-lg font-medium">{{ profile.profileName }} - 
-            <span class="text-sm text-gray-500">{{ profile.dwnEndpoint }}</span>
-          </p>
+          <p class="text-lg font-medium">{{ profile.profileName }}</p>
+          <p class="text-sm text-gray-500">DWN: {{ profile.dwnEndpoint }}</p>
         </div>
         <div>
           <!-- Right Arrow Icon -->

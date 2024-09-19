@@ -106,7 +106,8 @@ export class ProfileManager {
       } = await profileReadResult.record.data.json();
 
       // get the DWN endpoint from the DID document
-      const serviceEndpoint = identity.did.document.service?.find((service) => service.id === 'dwn')?.serviceEndpoint ?? '';
+      console.log('DID Document:', identity.did.document);
+      const serviceEndpoint = identity.did.document.service?.find((service) => service.type === 'DecentralizedWebNode')?.serviceEndpoint[0] ?? '';
       // selecting the first available endpoint
       let dwnEndpoint;
       if (typeof(serviceEndpoint) === 'string') {
