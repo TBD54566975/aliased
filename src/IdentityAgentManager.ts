@@ -167,14 +167,3 @@ export class IdentityAgentManager {
     await agent.sync.registerIdentity({ did: identity.did.uri });
   };
 }
-
-// export const IdentityAgentManager = {
-//   getAgent,
-//   initialize,
-//   isFirstLaunch,
-//   isAgentStarted,
-//   startAgent,
-//   createIdentity,
-//   listIdentities,
-//   web5,
-// };
