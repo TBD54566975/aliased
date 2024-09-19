@@ -1,4 +1,4 @@
-import type { PortableDid } from "@web5/dids";
+import type { DidServiceEndpoint, PortableDid } from "@web5/dids";
 import { DidDht } from "@web5/dids";
 import { IdentityAgentManager } from "./IdentityAgentManager";
 import { profileProtocol } from "./profile-protocol";
@@ -106,8 +106,8 @@ export class ProfileManager {
       } = await profileReadResult.record.data.json();
 
       // get the DWN endpoint from the DID document
-      console.log('DID Document:', identity.did.document);
-      const serviceEndpoint = identity.did.document.service?.find((service) => service.type === 'DecentralizedWebNode')?.serviceEndpoint[0] ?? '';
+      const serviceEndpoints = identity.did.document.service?.find((service) => service.type === 'DecentralizedWebNode')?.serviceEndpoint as DidServiceEndpoint[];
+      const serviceEndpoint = serviceEndpoints[0] ?? '';
       // selecting the first available endpoint
       let dwnEndpoint;
       if (typeof(serviceEndpoint) === 'string') {

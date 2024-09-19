@@ -10,10 +10,10 @@
     <div class="space-y-4 flex-grow">
       <div 
         v-for="profile in profiles" 
-        :key="profile.did"
+        :key="profile.profileName"
         :class="{
-          'bg-[#fcec03]': profile.did === selectedProfile,
-          'bg-white': profile.did !== selectedProfile
+          'bg-[#fcec03]': profile.profileName === selectedProfileName,
+          'bg-white': profile.profileName !== selectedProfileName
         }"
         class="flex items-center p-4 rounded-lg shadow cursor-pointer"
         @click="selectProfile(profile)"
@@ -25,9 +25,8 @@
           </div>
         </div>
         <div class="flex-grow ml-4">
-          <p class="text-lg font-medium">{{ profile.profileName }} - 
-            <span class="text-sm text-gray-500">{{ profile.dwnEndpoint }}</span>
-          </p>
+          <p class="text-lg font-medium">{{ profile.profileName }}</p>
+          <p class="text-sm text-gray-500">{{ profile.dwnEndpoint }}</p>
         </div>
       </div>
     </div>
@@ -56,7 +55,7 @@
       </button>
       <button 
         @click="confirmConnection"
-        :disabled="!selectedProfile"
+        :disabled="!selectedProfileName"
         class="bg-[#fcec03] text-black py-3 px-6 rounded-full w-1/2 disabled:opacity-50"
       >
         Next
@@ -79,7 +78,7 @@ const route = useRoute();
 
 // Reactive data
 const profiles = ref<Profile[]>([]);
-const selectedProfile = ref<string | null>(null);
+const selectedProfileName = ref<string | null>(null);
 const serviceName = ref('Fllw'); // This could be dynamic based on the deep link
 
 // Example decryptedConnectionRequest, this will be passed to the component dynamically
@@ -103,30 +102,36 @@ onMounted(async () => {
 
 // Function to select a profile
 const selectProfile = (profile: Profile) => {
-  selectedProfile.value = profile.did;
+  selectedProfileName.value = profile.profileName;
 };
 
 // Function to cancel the connection
 const cancel = () => {
-  console.log('Web5 connect request cancelled');
+  console.log('Web5 connect request cancelled.');
   router.go(-1); // Go back to the previous route
 };
 
 
 const confirmConnection = async () => {
-    const selectedDid = profiles.value.find((profile) => profile.profileName === selectedProfile.value)!.did;
-  
-    const identityAgentManager = await IdentityAgentManager.singleton();
-    const identityAgent = identityAgentManager.agent;
+  console.log('Confirming connection with selected profile:', selectedProfileName.value);
+  const selectedDid = profiles.value.find((profile) => profile.profileName === selectedProfileName.value)!.did;
 
-    const pin = CryptoUtils.randomPin({ length: 4 });
-    await Oidc.submitAuthResponse(
-      selectedDid,
-      decryptedConnectionRequest.value!,
-      pin,
-      identityAgent
-    );
-  };
+  const identityAgentManager = await IdentityAgentManager.singleton();
+  const identityAgent = identityAgentManager.agent;
+
+  console.log('Creating connect PIN...')
+  const pin = CryptoUtils.randomPin({ length: 4 });
+  console.log('One-time connect PIN created:', pin);
+
+  console.log('Creating grants and submitting auth response...')
+  await Oidc.submitAuthResponse(
+    selectedDid,
+    decryptedConnectionRequest.value!,
+    pin,
+    identityAgent
+  );
+  console.log('Auth response submitted successfully.');
+};
 
 </script>
 
