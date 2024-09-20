@@ -124,7 +124,7 @@ const onSessionInitialized = async () => {
         <RouterLink to="/camera" :class="[isActiveTab('camera') ? 'text-black' : 'text-gray-400']">
           <div class="flex flex-col items-center">
             <ion-icon :icon="cameraOutline" size="large" />
-            <p>Camera</p>
+            <p>Scan</p>
           </div>
         </RouterLink>
       </div>

@@ -1,11 +1,12 @@
 <template>
-  <div class="flex flex-col h-screen justify-center items-center p-4">
-    <h2 class="text-2xl mb-4">Scan QR Code</h2>
+  <div class="flex flex-col h-full">
+    <!-- Top Header with space for the mobile status bar (time, battery, etc.) -->
+    <div class="bg-[#fcec03] p-4 flex items-center justify-between pt-24">
+      <p class="text-4xl">Scan</p>
+    </div>
     
     <!-- QR Code Scanner -->
     <qrcode-stream @detect="onDetect" @init="onInit"></qrcode-stream>
-
-    <p class="mt-4">{{ debugInfo }}</p>
 
     <p v-if="qrCodeData" class="mt-4">QR Code Data: {{ qrCodeData }}</p>
   </div>
@@ -19,13 +20,11 @@
   const router = useRouter();
 
   const qrCodeData = ref<string | null>(null);
-  const debugInfo = ref<string | null>(null);
   
   // Handle QR code decoding
   const onDetect = (detectedCodes: any[]) => {
     const qrCode = detectedCodes[0].rawValue;
     qrCodeData.value = qrCode;
-    debugInfo.value = 'QR Code decoded: ' + qrCode;
     console.log('QR Code decoded:', qrCode);
   
     // Handle the decoded data (e.g., navigate using the decoded URL)
@@ -47,8 +46,8 @@
   // Handle QR code stream initialization
   const onInit = (promise: Promise<void>) => {
     promise
-      .then(() => debugInfo.value = 'QR code scanner initialized successfully.')
-      .catch((error) => debugInfo.value = `Error initializing QR code scanner: ${error}`);
+      .then(() => console.log('QR code scanner initialized successfully.'))
+      .catch((error) => console.log(`Error initializing QR code scanner: ${error}`));
   };
 </script>
   
