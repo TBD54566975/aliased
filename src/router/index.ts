@@ -1,6 +1,7 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import ProfilesView from '../views/ProfilesView.vue'
-import Web5ConnectRequestView from '../views/Web5ConnectRequestView.vue'
+import { createRouter, createWebHistory } from 'vue-router';
+import CameraView from '../views/CameraView.vue';
+import ProfilesView from '../views/ProfilesView.vue';
+import Web5ConnectRequestView from '../views/Web5ConnectRequestView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,6 +23,11 @@ const router = createRouter({
       path: '/web5-connect-request',
       name: 'web5-connect-request',
       component: Web5ConnectRequestView
+    },
+    {
+      path: '/camera',
+      name: 'camera',
+      component: CameraView,  // Add a route for the Camera view
     },
   ]
 })

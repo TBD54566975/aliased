@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 
-	<!-- Configure Deep Links in iOS -->
+	<!-- Configuration for deep Links -->
 	<key>CFBundleURLTypes</key>
 	<array>
 	<dict>
@@ -15,6 +15,10 @@
 		</array>
 	</dict>
 	</array>
+
+	<!-- Configuration for Camera -->
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires access to the camera for scanning QR codes.</string>
 
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>

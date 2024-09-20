@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IonIcon } from '@ionic/vue';
-import { cubeOutline, idCardOutline } from 'ionicons/icons';
+import { cameraOutline, cubeOutline, idCardOutline } from 'ionicons/icons';
 import { RouterLink, RouterView } from 'vue-router';
 import { useRouter, useRoute } from 'vue-router';
 import { ref, onMounted, nextTick, computed } from 'vue';
@@ -114,6 +114,14 @@ const onSessionInitialized = async () => {
           <div class="flex flex-col items-center">
             <ion-icon :icon="cubeOutline" size="large"></ion-icon>
             <p class="text-gray-400 text-sm">Apps</p>
+          </div>
+        </RouterLink>
+
+        <!-- Camera Tab -->
+        <RouterLink to="/camera" class="text-black text-lg">
+          <div class="flex flex-col items-center">
+            <ion-icon :icon="cameraOutline" size="large"></ion-icon> <!-- Camera icon -->
+            <p class="text-black text-sm">Camera</p>
           </div>
         </RouterLink>
       </div>

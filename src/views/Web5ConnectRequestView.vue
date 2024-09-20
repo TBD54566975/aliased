@@ -128,27 +128,31 @@ const cancel = () => {
 
 // Function to confirm connection and generate PIN
 const confirmConnection = async () => {
-  console.log('Confirming connection with selected profile:', selectedProfileName.value);
-  const selectedDid = profiles.value.find((profile) => profile.profileName === selectedProfileName.value)!.did;
+  try {
+    console.log('Confirming connection with selected profile:', selectedProfileName.value);
+    const selectedDid = profiles.value.find((profile) => profile.profileName === selectedProfileName.value)!.did;
 
-  const identityAgentManager = await IdentityAgentManager.singleton();
-  const identityAgent = identityAgentManager.agent;
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    const identityAgent = identityAgentManager.agent;
 
-  console.log('Creating connect PIN...');
-  pin.value = CryptoUtils.randomPin({ length: 4 });
-  console.log('One-time connect PIN created:', pin.value);
+    console.log('Creating connect PIN...');
+    pin.value = CryptoUtils.randomPin({ length: 4 });
+    console.log('One-time connect PIN created:', pin.value);
 
-  console.log('Creating grants and submitting auth response...');
-  await Oidc.submitAuthResponse(
-    selectedDid,
-    decryptedConnectionRequest.value!,
-    pin.value,
-    identityAgent
-  );
-  console.log('Auth response submitted successfully.');
+    console.log('Creating grants and submitting auth response...');
+    await Oidc.submitAuthResponse(
+      selectedDid,
+      decryptedConnectionRequest.value!,
+      pin.value,
+      identityAgent
+    );
+    console.log('Auth response submitted successfully.');
 
-  // Switch to PIN display mode
-  pinDisplayMode.value = true;
+    // Switch to PIN display mode
+    pinDisplayMode.value = true;
+  } catch (error) {
+    console.error('Error granting access:', JSON.stringify(error));
+  }
 };
 
 // Function to close the PIN display and go back to the previous route
