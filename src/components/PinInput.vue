@@ -7,14 +7,14 @@
       class="w-12 h-12 text-center text-2xl border border-gray-300 rounded flex items-center justify-center"
     >
       <!-- Display the actual digit or asterisk (*) based on the mask prop, or nothing if no digit is entered -->
-      {{ mask ? (pin[index] ? '*' : '') : (pin[index] || '') }}
+      {{ mask ? (pin[index] ? '●' : '') : (pin[index] || '') }}
     </div>
 
     <!-- Hidden input to capture the entire pin -->
     <input
       type="text"
       inputmode="numeric"
-      maxlength="8"
+      maxlength="1"
       pattern="[0-9]*"
       class="invisible-input"
       ref="hiddenInput"
@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, watch, defineExpose } from 'vue';
+import { ref, onMounted, onBeforeUnmount, nextTick, watch, defineExpose } from 'vue';
 
 // Define props with TypeScript
 interface Props {
@@ -52,12 +52,13 @@ const emit = defineEmits<{
 
 // Watch the pin array and emit the joined value when updated
 watch(pin, (newPin) => {
-  const newPingString = newPin.join('');
-  emit('update:pin', newPingString); // Emit the updated pin
+  const newPinString = newPin.join('');
+  emit('update:pin', newPinString); // Emit the updated pin
 });
 
 // Reference to the hidden input
 const hiddenInput = ref<HTMLInputElement | null>(null);
+const submitButton = ref<HTMLElement | null>(null); // Reference to the Submit button
 
 // Focus the hidden input box for capturing numeric input
 const focusHiddenInput = () => {
@@ -68,24 +69,47 @@ const focusHiddenInput = () => {
 
 // Handle the input and update the pin array
 const handleInput = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const value = target.value.replace(/\D/g, ''); // Only keep digits
-  pin.value = value.split('').slice(0, props.length); // Update the pin array with the digits entered
-  target.value = pin.value.join(''); // Sync the input value with the pin digits
+  const hiddenInputElement = event.target as HTMLInputElement;
+  const value = hiddenInputElement.value.replace(/\D/g, ''); // Only keep digits
+
+  // Only add the new digit if there is space left in the pin array
+  if (value && pin.value.length < props.length) {
+    // Add the new digit to the pin array
+    // NOTE: notice the use of the spread operator to create a new array to trigger reactivity
+    pin.value = [...pin.value, value];
+
+    hiddenInputElement.value = ''; // Clear the input field to allow for the next digit
+  }
+  focusHiddenInput(); // Refocus the input after each input
 };
 
 // Handle backspace to remove digits from the pin array
 const handleBackspace = (event: KeyboardEvent) => {
   if (event.key === 'Backspace') {
-    pin.value.pop();
+    // NOTE: notice the use of the spread operator to create a new array to trigger reactivity
+    const newPin = [...pin.value];
+    newPin.pop(); // Remove the last digit entered
+    pin.value = newPin; // Remove the last digit entered
+    focusHiddenInput(); // Refocus input for further keypresses
   }
 };
 
 // Reset the pin array
 const resetPin = () => {
-  hiddenInput.value!.value = '';
-  pin.value = Array(props.length).fill(''); // Clear all entered digits
+  pin.value = []; // Clear all entered digits
+  emit('update:pin', ''); // Emit an empty pin to the parent
   focusHiddenInput(); // Refocus the hidden input for new entry
+};
+
+// Handle global click events to refocus the hidden input unless the Submit button is clicked
+const handleGlobalClick = (event: MouseEvent) => {
+  if (submitButton.value && submitButton.value.contains(event.target as Node)) {
+    // Do not refocus if the Submit button is clicked
+    return;
+  }
+
+  // Otherwise, refocus the hidden input
+  focusHiddenInput();
 };
 
 // Expose the resetPin method to the parent component
@@ -93,8 +117,15 @@ defineExpose({
   resetPin
 });
 
-// Ensure the hidden input is always focused to capture numeric input
-focusHiddenInput();
+// Add global click listener on mount and remove it on unmount
+onMounted(() => {
+  document.addEventListener('click', handleGlobalClick);
+  focusHiddenInput(); // Ensure the hidden input is focused on component mount
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleGlobalClick);
+});
 </script>
 
 <style scoped>
