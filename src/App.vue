@@ -24,6 +24,9 @@ const pendingDeepLink = ref<string | undefined>(undefined);
 // Determine if the current route is a modal route (e.g. /web5-connect-request)
 const isModalRoute = computed(() => route.name === 'web5-connect-request');
 
+// Function to determine if the tab is active
+const isActiveTab = (tabRouteName: string) => route.name === tabRouteName;
+
 onMounted(async () => {
   console.log('Window object:', Object.keys(window));
   console.log('Global object:', typeof globalThis !== 'undefined' ? Object.keys(globalThis) : 'Not available');
@@ -100,28 +103,28 @@ const onSessionInitialized = async () => {
 
     <!-- Navigation bar fixed at the bottom -->
     <header v-if="!isModalRoute" class="bg-gray-100 p-4">
-      <div class="flex justify-around">
+      <div class="flex justify-around text-sm">
         <!-- Profiles Tab -->
-        <RouterLink to="/" class="text-black text-lg">
+        <RouterLink to="/" :class="[isActiveTab('profiles') ? 'text-black' : 'text-gray-400']">
           <div class="flex flex-col items-center">
-            <ion-icon :icon="idCardOutline" size="large"></ion-icon>
-            <p class="text-black text-sm">Profiles</p>
+            <ion-icon :icon="idCardOutline" size="large" />
+            <p>Profiles</p>
           </div>
         </RouterLink>
 
         <!-- Apps Tab -->
-        <RouterLink to="/apps" class="text-black text-lg">
+        <RouterLink to="/apps" :class="[isActiveTab('apps') ? 'text-black' : 'text-gray-400']">
           <div class="flex flex-col items-center">
-            <ion-icon :icon="cubeOutline" size="large"></ion-icon>
-            <p class="text-gray-400 text-sm">Apps</p>
+            <ion-icon :icon="cubeOutline" size="large" />
+            <p>Apps</p>
           </div>
         </RouterLink>
 
         <!-- Camera Tab -->
-        <RouterLink to="/camera" class="text-black text-lg">
+        <RouterLink to="/camera" :class="[isActiveTab('camera') ? 'text-black' : 'text-gray-400']">
           <div class="flex flex-col items-center">
-            <ion-icon :icon="cameraOutline" size="large"></ion-icon> <!-- Camera icon -->
-            <p class="text-black text-sm">Camera</p>
+            <ion-icon :icon="cameraOutline" size="large" />
+            <p>Camera</p>
           </div>
         </RouterLink>
       </div>
@@ -129,4 +132,3 @@ const onSessionInitialized = async () => {
   </div>
 
 </template>
-

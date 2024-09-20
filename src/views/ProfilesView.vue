@@ -19,7 +19,9 @@
           <p class="text-lg font-medium">{{ profile.profileName }}</p>
           <p class="text-sm text-gray-500">DWN: {{ profile.dwnEndpoint }}</p>
         </div>
-        <div>
+
+        <!-- Disable for now for future extension -->
+        <div v-if="false">
           <!-- Right Arrow Icon -->
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />

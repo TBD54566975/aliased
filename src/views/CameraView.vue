@@ -14,6 +14,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter, useRoute } from 'vue-router';
+
   // Initialize Vue Router for programmatic navigation
   const router = useRouter();
 
