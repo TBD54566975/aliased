@@ -17,6 +17,12 @@ export type Profile = {
   privateKeyJwk?: ExtractArrayType<PortableDid['privateKeys']>;
 };
 
+export type AppModel = {
+  appName?: string;
+  protocolUri: string;
+  profileName: string;
+};
+
 /**
  * ProfileManager is a singleton class that manages the user's profiles.
  */
@@ -77,33 +83,7 @@ export class ProfileManager {
 
     const profiles = [];
     for (const identity of identities) {
-      const web5 = identityAgentManager.web5(identity.did.uri);
 
-      console.log('Fetching profile for:', identity.did.uri);
-      const profileQueryResult = await web5.dwn.records.query({
-        message: {
-          filter: {
-            protocol: profileProtocol.protocol,
-            protocolPath: 'profile',
-          },
-        },
-      });
-      console.log('Profile record fetched for:', identity.did.uri);
-
-      const profileRecordId = profileQueryResult.records?.at(0)?.id;
-
-      const profileReadResult = await web5.dwn.records.read({
-        message: {
-          filter: {
-            recordId: profileRecordId
-          },
-        },
-      });
-
-      const partialProfile: {
-        name: string;
-        did: string;
-      } = await profileReadResult.record.data.json();
 
       // get the DWN endpoint from the DID document
       const serviceEndpoints = identity.did.document.service?.find((service) => service.type === 'DecentralizedWebNode')?.serviceEndpoint as DidServiceEndpoint[];
@@ -115,6 +95,8 @@ export class ProfileManager {
       } else {
         throw new Error('Unsupported DWN service endpoint format');
       }
+
+      const partialProfile = await this.getProfileFromDid(identity.did.uri);
 
       const profile = {
         profileName: partialProfile.name,
@@ -136,6 +118,79 @@ export class ProfileManager {
     // }
 
     // return JSON.parse(profiles);
+  }
+
+  private async getProfileFromDid(didUri: string): Promise<{
+    name: string;
+    did: string;
+  }> {
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    const web5 = identityAgentManager.web5(didUri);
+
+    console.log('Fetching profile for:', didUri);
+    const profileQueryResult = await web5.dwn.records.query({
+      message: {
+        filter: {
+          protocol: profileProtocol.protocol,
+          protocolPath: 'profile',
+        },
+      },
+    });
+    console.log('Profile record fetched for:', didUri);
+
+    const profileRecordId = profileQueryResult.records?.at(0)?.id;
+
+    const profileReadResult = await web5.dwn.records.read({
+      message: {
+        filter: {
+          recordId: profileRecordId
+        },
+      },
+    });
+
+    const partialProfile: {
+      name: string;
+      did: string;
+    } = await profileReadResult.record.data.json();
+
+    return partialProfile;
+  }
+
+  /**
+   * Gets the list of managed apps.
+   */
+  public async getApps(): Promise<AppModel[]> {
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    if (await identityAgentManager.isFirstLaunch()) {
+      return [];
+    }
+
+    console.log('Getting identity list...');
+    const identities = await identityAgentManager.agent.identity.list();
+    console.log('Fetched identity count:', identities.length);
+
+    const apps = [];
+    for (const identity of identities) {
+      const web5 = identityAgentManager.web5(identity.did.uri);
+      const partialProfile = await this.getProfileFromDid(identity.did.uri);
+      
+      console.log('Fetching protocols for:', identity.did.uri);
+      const queryResult = await web5.dwn.protocols.query({
+        message: { },
+      });
+      console.log('Protocols fetched:', queryResult.protocols.length);
+
+      for (const protocol of queryResult.protocols) {
+        const app = {
+          profileName: partialProfile.name,
+          protocolUri: protocol.definition.protocol,
+        };
+
+        apps.push(app);
+      }
+    }
+
+    return apps;
   }
 
   /**
