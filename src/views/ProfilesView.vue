@@ -1,6 +1,6 @@
 <template>
 
-  <Profile v-if="mode === Mode.Profile" :profile-model="selectedProfile!" @closed="onProfileClosed" @deleted="onProfileDeleted(selectedProfile)"/>
+  <Profile v-if="mode === Mode.Profile" :profile-model="selectedProfile!" @closed="onProfileClosed" @deleted="onProfileDeleted(selectedProfile!)"/>
   <ProfileCreationWizard v-else-if="mode === Mode.ProfileCreation" @canceled="mode = Mode.ProfileList" @created="onProfileCreated" />
 
   <div v-else class="flex flex-col h-screen">

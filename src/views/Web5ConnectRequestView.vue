@@ -81,7 +81,7 @@
 import type { Web5ConnectAuthRequest } from "@web5/agent";
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { ProfileManager, type Profile } from '../ProfileManager';
+import { ProfileManager, type ProfileModel } from '../ProfileManager';
 import { Oidc } from "@web5/agent";
 import { CryptoUtils } from "@web5/crypto";
 import { IdentityAgentManager } from "../IdentityAgentManager";
@@ -89,7 +89,7 @@ import { IdentityAgentManager } from "../IdentityAgentManager";
 const route = useRoute();
 
 // Reactive data
-const profiles = ref<Profile[]>([]);
+const profiles = ref<ProfileModel[]>([]);
 const selectedProfileName = ref<string | null>(null);
 const serviceName = ref('Fllw'); // This could be dynamic based on the deep link
 
@@ -116,7 +116,7 @@ onMounted(async () => {
 });
 
 // Function to select a profile
-const selectProfile = (profile: Profile) => {
+const selectProfile = (profile: ProfileModel) => {
   selectedProfileName.value = profile.profileName;
 };
 
