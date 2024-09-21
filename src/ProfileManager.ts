@@ -10,7 +10,7 @@ import { profileProtocol } from "./profile-protocol";
  */
 type ExtractArrayType<T> = T extends (infer U)[] ? U : never;
 
-export type Profile = {
+export type ProfileModel = {
   profileName: string;
   did: string;
   dwnEndpoint: string;
@@ -71,7 +71,7 @@ export class ProfileManager {
   /**
    * Gets the list of managed profiles.
    */
-  public async getProfiles(): Promise<Profile[]> {
+  public async getProfiles(): Promise<ProfileModel[]> {
     const identityAgentManager = await IdentityAgentManager.singleton();
     if (await identityAgentManager.isFirstLaunch()) {
       return [];
@@ -118,6 +118,11 @@ export class ProfileManager {
     // }
 
     // return JSON.parse(profiles);
+  }
+
+  public async deleteProfile(did: string) {
+    const identityAgentManager = await IdentityAgentManager.singleton();
+    await identityAgentManager.agent.identity.delete({ didUri: did });
   }
 
   private async getProfileFromDid(didUri: string): Promise<{

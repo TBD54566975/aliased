@@ -53,7 +53,6 @@
   <script setup lang="ts">
   import { ProfileManager } from '../ProfileManager';
   import { ref, computed } from 'vue';
-  import { IdentityAgentManager } from '@/IdentityAgentManager';
   
   // Used for displaying debug info
   const debugInfo = ref('');
@@ -70,8 +69,6 @@
   // Move to the next step
   const onCreate = async () => {
     try {
-      const identityAgentManager = await IdentityAgentManager.singleton();
-  
       console.log(`Creating profile: ${profileName.value}...`);
       await ProfileManager.singleton().createProfile({
         profileName: profileName.value,

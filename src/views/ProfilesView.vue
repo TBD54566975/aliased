@@ -1,6 +1,7 @@
 <template>
 
-  <ProfileCreationWizard v-if="profileCreationWizard" @canceled="profileCreationWizard = false" @created="onProfileCreated" />
+  <Profile v-if="mode === Mode.Profile" :profile-model="selectedProfile!" @closed="onProfileClosed" @deleted="onProfileDeleted(selectedProfile)"/>
+  <ProfileCreationWizard v-else-if="mode === Mode.ProfileCreation" @canceled="mode = Mode.ProfileList" @created="onProfileCreated" />
 
   <div v-else class="flex flex-col h-screen">
     <!-- Top Header with space for the mobile status bar (time, battery, etc.) -->
@@ -11,25 +12,19 @@
     <!-- Profile List -->
     <div class="flex flex-col flex-grow p-4 space-y-4 overflow-y-auto">
       <!-- Dynamically loaded profile items -->
-      <div v-for="profile in profiles" :key="profile.did" class="flex items-center p-4 bg-white rounded-lg shadow">
+      <div v-for="profile in profiles" :key="profile.did" class="flex items-center p-4 bg-white rounded-lg shadow" @click="onProfileClicked(profile)">
         <div class="flex-shrink-0">
           <!-- Icon Placeholder -->
           <div class="bg-gray-200 h-12 w-12 rounded-full flex items-center justify-center">
             <span class="text-2xl">#</span>
           </div>
         </div>
+
         <div class="flex-grow ml-4">
           <p class="text-lg font-medium">{{ profile.profileName }}</p>
           <p class="text-sm text-gray-500">DWN: {{ profile.dwnEndpoint }}</p>
         </div>
 
-        <!-- Disable for now for future extension -->
-        <div v-if="false">
-          <!-- Right Arrow Icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </div>
       </div>
 
       <button
@@ -45,14 +40,22 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { ProfileManager, type Profile } from '@/ProfileManager';
-import { useRouter } from 'vue-router';
+import { ProfileManager, type ProfileModel } from '@/ProfileManager';
+import Profile from '../components/Profile.vue';
 import ProfileCreationWizard from '../components/ProfileCreationWizard.vue';
+import { on } from 'events';
 
-const profileCreationWizard = ref(false);
+enum Mode {
+  Profile,
+  ProfileList,
+  ProfileCreation,
+}
+
+const mode = ref<Mode>(Mode.ProfileList);
 
 // Reactive variable to store profiles
-const profiles = ref<Profile[]>([]);
+const selectedProfile = ref<ProfileModel | undefined>(undefined);
+const profiles = ref<ProfileModel[]>([]);
 
 // Fetch profiles when component is mounted
 const fetchProfiles = async () => {
@@ -66,7 +69,7 @@ const fetchProfiles = async () => {
 // Create a new profile (you can modify this to show a form)
 const createProfile = async () => {
   // Activate the ProfileCreationWizard component
-  profileCreationWizard.value = true;
+  mode.value = Mode.ProfileCreation;
 };
 
 // Fetch profiles on component mount
@@ -76,9 +79,27 @@ onMounted(() => {
 
 const onProfileCreated = () => {
   // Refresh the profile list by fetching the profiles again
-  profileCreationWizard.value = false;
+  mode.value = Mode.ProfileList;
   fetchProfiles();
 };
+
+const onProfileClicked = (profile: ProfileModel) => {
+  selectedProfile.value = profile;
+  mode.value = Mode.Profile;
+};
+
+const onProfileClosed = () => {
+  selectedProfile.value = undefined;
+  mode.value = Mode.ProfileList;
+};
+
+const onProfileDeleted = (profile: ProfileModel) => {
+  // Refresh the profile list by fetching the profiles again
+  fetchProfiles();
+
+  onProfileClosed();
+};
+
 </script>
 
 <style scoped>
