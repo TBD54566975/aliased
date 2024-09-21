@@ -1,5 +1,8 @@
 <template>
-  <div class="flex flex-col h-screen">
+
+  <ProfileCreationWizard v-if="profileCreationWizard" @canceled="profileCreationWizard = false" @created="onProfileCreated" />
+
+  <div v-else class="flex flex-col h-screen">
     <!-- Top Header with space for the mobile status bar (time, battery, etc.) -->
     <div class="bg-[#fcec03] p-4 flex items-center justify-between pt-24">
       <p class="text-4xl">Profiles</p>
@@ -44,8 +47,9 @@
 import { ref, onMounted } from 'vue';
 import { ProfileManager, type Profile } from '@/ProfileManager';
 import { useRouter } from 'vue-router';
+import ProfileCreationWizard from '../components/ProfileCreationWizard.vue';
 
-const router = useRouter();
+const profileCreationWizard = ref(false);
 
 // Reactive variable to store profiles
 const profiles = ref<Profile[]>([]);
@@ -61,16 +65,20 @@ const fetchProfiles = async () => {
 
 // Create a new profile (you can modify this to show a form)
 const createProfile = async () => {
-  // temporary trigger web5 connect request handler
-  router.push({
-    path: '/web5-connect-request'
-  });
+  // Activate the ProfileCreationWizard component
+  profileCreationWizard.value = true;
 };
 
 // Fetch profiles on component mount
 onMounted(() => {
   fetchProfiles();
 });
+
+const onProfileCreated = () => {
+  // Refresh the profile list by fetching the profiles again
+  profileCreationWizard.value = false;
+  fetchProfiles();
+};
 </script>
 
 <style scoped>

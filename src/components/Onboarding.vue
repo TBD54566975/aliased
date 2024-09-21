@@ -148,8 +148,6 @@ const previousStep = () => {
 // bootstraps a new identity agent then creates the first profile
 const bootstrap = async () => {
   try {
-    // console.log(process);
-
     const identityAgentManager = await IdentityAgentManager.singleton();
     await identityAgentManager.bootstrap(pin.value);
 

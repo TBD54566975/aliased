@@ -24,6 +24,11 @@ const router = createRouter({
       name: 'web5-connect-request',
       component: Web5ConnectRequestView
     },
+    // {
+    //   path: '/create-profile',
+    //   name: 'create-profile',
+    //   component: CreateProfileView
+    // },
     {
       path: '/camera',
       name: 'camera',
