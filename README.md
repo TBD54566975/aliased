@@ -1,38 +1,66 @@
-# dwa-starter-vue-vite
+# Aliased - A WebView-Based Web5 Mobile Wallet App
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a WebView-based Web5 wallet app written using Vue.js.
+
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+[VSCode](https://code.visualstudio.com/) + [Vue - Official plugin](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and NOT Vetur, or Volar).
 
 ## Type Support for `.vue` Imports in TS
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need Vue - Official plugin to make the TypeScript language service aware of `.vue` types.
 
-## Customize configuration
+## Building and Running the App
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+### Prerequisites:
+- `npm`
+- `xcode` (for iOS)
 
-## Project Setup
+### Installing dependencies
+1. Clone the [`web5-js` repo](https://github.com/TBD54566975/web5-js), `web5-js` repo will be used as a direct dependency for this repo.
+2. Clone this repo as a peer repo to `web-js` (i.e. both repo directories have the same parent directory).
+3. Under this root directory of the local repo run:
 
-```sh
-npm install
-```
+    ```sh
+    npm install --legacy-peer-deps
+    ```
+
+> NOTE: the `--legacy-peer-deps` is to workaround a [polyfill dependency issue](https://github.com/TBD54566975/aliased/issues/1)
 
 ### Compile and Hot-Reload for Development
+`esbuild` is used for development in browsers taking advantage of speed of `esbuild' which allows dynamic reloading:
 
 ```sh
 npm run dev
 ```
 
 ### Type-Check, Compile and Minify for Production
+Instead `esbuild`, `rollup` is used for production builds which then get bundled in the mobile platforms:
 
 ```sh
 npm run build
 ```
 
+> Optional: You can also run `npm run preview` to launch the production build and view it in a browser. This can be useful for sanity checking differences between `dev` builds, if any.
+
+### Running iOS App
+1. We use `capacitor` to generate the iOS `xcode` project:
+
+    ```sh
+    npx cap sync
+    ```
+    > NOTE: this should be run every time you wish to deploy a new build to the phone or simulator.
+
+1. Launch the project workspace file:
+
+    ```sh
+    open ./ios/App/App.xcworkspace
+    ```
+1. Click on the "play" button to launch the app.
+
 ### Lint with [ESLint](https://eslint.org/)
+
 
 ```sh
 npm run lint
