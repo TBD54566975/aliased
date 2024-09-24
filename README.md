@@ -7,9 +7,7 @@ This is a WebView-based Web5 wallet app written using Vue.js.
 
 [VSCode](https://code.visualstudio.com/) + [Vue - Official plugin](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and NOT Vetur, or Volar).
 
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need Vue - Official plugin to make the TypeScript language service aware of `.vue` types.
+TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` (a dependency in `package.json`) for type checking. In editors, we need Vue - Official plugin to make the TypeScript language service aware of `.vue` types.
 
 ## Building and Running the App
 
@@ -20,7 +18,7 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 ### Installing dependencies
 1. Clone the [`web5-js` repo](https://github.com/TBD54566975/web5-js), `web5-js` repo will be used as a direct dependency for this repo.
 2. Clone this repo as a peer repo to `web-js` (i.e. both repo directories have the same parent directory).
-3. Under this root directory of the local repo run:
+3. Under this root directory of the local `aliased` repo run:
 
     ```sh
     npm install --legacy-peer-deps
@@ -44,8 +42,12 @@ npm run build
 
 > Optional: You can also run `npm run preview` to launch the production build and view it in a browser. This can be useful for sanity checking differences between `dev` builds, if any.
 
-### Running iOS App
-1. We use `capacitor` to generate the iOS `xcode` project:
+### Running as Mobile Apps
+Once a production build is ready (after running `npm run build`), we can now bundle up build as a mobile app using `capacitor`:
+
+For iOS:
+
+1. Generate the iOS `xcode` project:
 
     ```sh
     npx cap sync
