@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Aliased</string>
+    <string name="title_activity_main">Aliased</string>
+    <string name="package_name">foundation.identity.aliased</string>
+    <string name="custom_url_scheme">foundation.identity.aliased</string>
+</resources>

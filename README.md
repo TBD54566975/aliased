@@ -13,7 +13,13 @@ TypeScript cannot handle type information for `.vue` imports by default, so we r
 
 ### Prerequisites:
 - `npm`
-- `xcode` (for iOS)
+
+iOS:
+- Xcode
+
+Android:
+- Android Studio
+- JDK (Java Development Kit) 21 (NOT 23)
 
 ### Installing dependencies
 1. Clone the [`web5-js` repo](https://github.com/TBD54566975/web5-js), `web5-js` repo will be used as a direct dependency for this repo.
@@ -60,6 +66,12 @@ For iOS:
     open ./ios/App/App.xcworkspace
     ```
 1. Click on the "play" button to launch the app.
+
+For Android:
+
+```sh
+npx cap run android
+```
 
 ### Lint with [ESLint](https://eslint.org/)
 
